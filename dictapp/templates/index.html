@@ -1,1 +1,34 @@
-<div>Hello</div>
+{% extends 'base.html' %} {% block title %}Welcome - WordApp{% endblock %}
+{% block content %}
+<div class="text-center">
+  <h1 class="display-4 mb-4">Welcome to WordApp</h1>
+  <p class="lead">
+    Your personal dictionary for learning and saving new words.
+  </p>
+
+  <div class="row mt-5">
+    <div class="col-md-6">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3>Search Words</h3>
+          <p>Look up definitions, examples, and pronunciations of any word.</p>
+          <a href="{% url 'search_word' %}" class="btn btn-primary"
+            >Start Searching</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3>My Words</h3>
+          <p>View and manage your collection of saved words.</p>
+          <a href="{% url 'my_words' %}" class="btn btn-primary"
+            >View Collection</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
