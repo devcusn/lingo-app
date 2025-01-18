@@ -73,8 +73,9 @@ def search_word(request):
     return render(request, 'search_word.html')
 
 
+@login_required(login_url='login')
 def my_words(request):
-    word_list = Word.objects.all()
+    word_list = Word.objects.filter(user=request.user)
     paginator = Paginator(word_list, 9)
 
     page = request.GET.get('page')
@@ -83,6 +84,7 @@ def my_words(request):
     return render(request, 'my_words.html', {'words': words})
 
 
+@login_required(login_url='login')
 def save_word(request):
     if request.method == 'POST':
         word = request.POST.get('word', '').strip()
@@ -92,8 +94,9 @@ def save_word(request):
                     f'https://api.dictionaryapi.dev/api/v2/entries/en/{word}')
                 if response.status_code == 200:
                     word_data = response.json()[0]
-                    if not Word.objects.filter(word=word_data['word']).exists():
+                    if not Word.objects.filter(word=word_data['word'], user=request.user).exists():
                         Word.objects.create(
+                            user=request.user,
                             word=word_data['word'],
                             phonetic=word_data.get('phonetic', ''),
                             meanings=word_data.get('meanings', [])
@@ -104,8 +107,9 @@ def save_word(request):
     return redirect('search_word')
 
 
+@login_required(login_url='login')
 def remove_word(request, word_id):
     if request.method == 'POST':
-        word = get_object_or_404(Word, id=word_id)
+        word = get_object_or_404(Word, id=word_id, user=request.user)
         word.delete()
     return redirect('my_words')
