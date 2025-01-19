@@ -28,26 +28,10 @@
             {% endif %} {% for meaning in word.meanings %}
             <div class="mb-3">
               <h5 class="text-primary">{{ meaning.partOfSpeech }}</h5>
-              <ul class="list-unstyled">
-                {% for definition in meaning.definitions|slice:":2" %}
-                <li class="mb-2">
-                  <p class="mb-1"><small>{{ definition.definition }}</small></p>
-                  {% if definition.example %}
-                  <p class="text-muted mb-0">
-                    <small><em>Example: {{ definition.example }}</em></small>
-                  </p>
-                  {% endif %}
-                </li>
-                {% endfor %}
-              </ul>
+              
             </div>
             {% endfor %}
 
-            <div class="text-end">
-              <small class="text-muted"
-                >Saved on: {{ word.created_at|date:"M d, Y" }}</small
-              >
-            </div>
           </div>
         </div>
       </div>
