@@ -1,73 +1,100 @@
-{% extends 'base.html' %} {% block title %}My Words - WordApp{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}My Words - LingoApp{% endblock %}
+
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <h2 class="mb-4">My Saved Words</h2>
-
-    {% if words %}
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      {% for word in words %}
-      <div class="col">
-        <div class="card h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start">
-              <h3 class="card-title">{{ word.word }}</h3>
-              <form
-                method="POST"
-                action="{% url 'remove_word' word.id %}"
-                style="display: inline"
-              >
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="mb-0">My Saved Words</h2>
+        </div>
+        <div class="card-body">
+          {% if words %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Word</th>
+                    <th>Phonetic</th>
+                    <th>Part of Speech</th>
+                    <th>Definition</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for word in words %}
+                    <tr>
+                      <td class="fw-bold">{{ word.word }}</td>
+                      <td>{{ word.phonetic|default:"-" }}</td>
+                      <td>
+                        {% for meaning in word.meanings %}
+                          <span class="badge bg-primary me-1">{{ meaning.partOfSpeech }}</span>
+                        {% endfor %}
+                      </td>
+                      <td>
+                        {% if word.meanings.0.definitions.0.definition %}
+                          {{ word.meanings.0.definitions.0.definition|truncatechars:100 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+                      <td>
+                        <form method="POST" action="{% url 'remove_word' word.id %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
-            {% if word.phonetic %}
-            <p class="text-muted">{{ word.phonetic }}</p>
-            {% endif %} {% for meaning in word.meanings %}
-            <div class="mb-3">
-              <h5 class="text-primary">{{ meaning.partOfSpeech }}</h5>
-              
-            </div>
-            {% endfor %}
 
-          </div>
+            {% if is_paginated %}
+            <nav class="mt-4">
+              <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
+          {% else %}
+            <div class="alert alert-info mb-0">
+              <p class="mb-0">You haven't saved any words yet. Use the search feature to find and save words!</p>
+            </div>
+          {% endif %}
         </div>
       </div>
-      {% endfor %}
     </div>
-
-    {% if is_paginated %}
-    <nav class="mt-4">
-      <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.previous_page_number }}"
-            >Previous</a
-          >
-        </li>
-        {% endif %} {% for num in page_obj.paginator.page_range %}
-        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-        </li>
-        {% endfor %} {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.next_page_number }}"
-            >Next</a
-          >
-        </li>
-        {% endif %}
-      </ul>
-    </nav>
-    {% endif %} {% else %}
-    <div class="alert alert-info">
-      <p class="mb-0">
-        You haven't saved any words yet. Use the search feature to find and save
-        words!
-      </p>
-    </div>
-    {% endif %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .table td {
+    vertical-align: middle;
+  }
+  .badge {
+    font-weight: 500;
+  }
+</style>
 {% endblock %}
