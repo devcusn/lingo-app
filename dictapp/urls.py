@@ -11,4 +11,6 @@ urlpatterns = [
     path("my-words/", views.my_words, name="my_words"),
     path("save-word/", views.save_word, name="save_word"),
     path("remove-word/<int:word_id>/", views.remove_word, name="remove_word"),
+    path("ngsl/", views.ngsl, name="ngsl"),
+    path("nawl/", views.nawl, name="nawl"),
 ]

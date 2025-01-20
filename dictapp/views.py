@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 import requests
+import csv
+import os
 from .models import Word
 
 
@@ -122,3 +124,29 @@ def remove_word(request, word_id):
         word = get_object_or_404(Word, id=word_id, user=request.user)
         word.delete()
     return redirect('my_words')
+
+
+def ngsl(request):
+    return render(request, 'new-general-service-list.html')
+
+
+def nawl(request):
+    search_query = request.GET.get('q', '').strip()
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(current_dir, 'nawl.csv')
+
+    words = []
+    with open(csv_path, 'r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            if not search_query or search_query.lower() in row['Headword'].lower():
+                words.append(row)
+
+    paginator = Paginator(words, 50)  # Show 50 words per page
+    page = request.GET.get('page')
+    words_page = paginator.get_page(page)
+
+    return render(request, 'new-academic-word-list.html', {
+        'words': words_page,
+        'search_query': search_query
+    })
