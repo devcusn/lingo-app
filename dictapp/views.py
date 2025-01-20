@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 import requests
 from .models import Word
 
@@ -75,13 +76,21 @@ def search_word(request):
 
 @login_required(login_url='login')
 def my_words(request):
+    search_query = request.GET.get('q', '').strip()
     word_list = Word.objects.filter(user=request.user)
-    paginator = Paginator(word_list, 9)
 
+    if search_query:
+        # Only search in the word field for SQLite compatibility
+        word_list = word_list.filter(word__icontains=search_query)
+
+    paginator = Paginator(word_list, 9)
     page = request.GET.get('page')
     words = paginator.get_page(page)
 
-    return render(request, 'my_words.html', {'words': words})
+    return render(request, 'my_words.html', {
+        'words': words,
+        'search_query': search_query
+    })
 
 
 @login_required(login_url='login')
