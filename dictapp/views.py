@@ -10,6 +10,8 @@ import csv
 import os
 from .models import Word
 from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
 
 
 def index(request):
@@ -208,3 +210,36 @@ def change_password(request):
         update_session_auth_hash(request, request.user)  # Keep user logged in
         messages.success(request, 'Password changed successfully.')
         return redirect('account_settings')
+
+
+@login_required
+def dashboard(request):
+    # Get current date and time
+    now = timezone.now()
+    week_ago = now - timedelta(days=7)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Get word counts
+    total_words = Word.objects.filter(user=request.user).count()
+    words_this_week = Word.objects.filter(
+        user=request.user,
+        created_at__gte=week_ago
+    ).count()
+    words_today = Word.objects.filter(
+        user=request.user,
+        created_at__gte=today_start
+    ).count()
+
+    # Get recent words
+    recent_words = Word.objects.filter(
+        user=request.user
+    ).order_by('-created_at')[:5]
+
+    context = {
+        'total_words': total_words,
+        'words_this_week': words_this_week,
+        'words_today': words_today,
+        'recent_words': recent_words,
+    }
+
+    return render(request, 'dashboard.html', context)

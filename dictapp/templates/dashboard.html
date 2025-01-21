@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - LingoApp{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2 class="fw-bold">Your Learning Dashboard</h2>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Total Words Card -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-book fs-4 text-primary me-2"></i>
+                        <h5 class="card-title mb-0">Total Words</h5>
+                    </div>
+                    <h2 class="display-4 fw-bold mb-0">{{ total_words }}</h2>
+                    <p class="text-muted">Words in your collection</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Words Added This Week -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-graph-up fs-4 text-success me-2"></i>
+                        <h5 class="card-title mb-0">This Week</h5>
+                    </div>
+                    <h2 class="display-4 fw-bold mb-0">{{ words_this_week }}</h2>
+                    <p class="text-muted">Words added this week</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Streak -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-lightning-charge fs-4 text-warning me-2"></i>
+                        <h5 class="card-title mb-0">Today</h5>
+                    </div>
+                    <h2 class="display-4 fw-bold mb-0">{{ words_today }}</h2>
+                    <p class="text-muted">Words added today</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">Recent Activity</h5>
+                    {% if recent_words %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Word</th>
+                                        <th>Added On</th>
+                                        <th>Definition</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for word in recent_words %}
+                                    <tr>
+                                        <td class="fw-bold">{{ word.word }}</td>
+                                        <td>{{ word.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if word.meanings.0.definitions.0.definition %}
+                                                {{ word.meanings.0.definitions.0.definition|truncatechars:100 }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No words added yet. Start by adding some words to your collection!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+{% endblock %} 
