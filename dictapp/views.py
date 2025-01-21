@@ -15,10 +15,17 @@ from datetime import timedelta
 
 
 def index(request):
+    # Redirect to dashboard if user is logged in
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     return render(request, 'index.html')
 
 
 def login_view(request):
+    # Redirect to dashboard if user is already logged in
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -26,7 +33,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('index')
+            return redirect('dashboard')  # Changed from 'index' to 'dashboard'
         else:
             return render(request, 'login.html', {'error': 'Invalid username or password'})
 
@@ -34,6 +41,10 @@ def login_view(request):
 
 
 def register_view(request):
+    # Redirect to dashboard if user is already logged in
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -52,7 +63,7 @@ def register_view(request):
         user = User.objects.create_user(
             username=username, email=email, password=password1)
         login(request, user)
-        return redirect('index')
+        return redirect('dashboard')  # Changed from 'index' to 'dashboard'
 
     return render(request, 'register.html')
 
