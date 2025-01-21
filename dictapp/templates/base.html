@@ -65,10 +65,20 @@
           <div class="d-flex gap-2">
             {% if user.is_authenticated %}
               <span class="navbar-text me-3">Welcome, {{ user.username }}</span>
-              <form action="{% url 'logout' %}" method="POST" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-login px-4">Log out</button>
-              </form>
+              <div class="dropdown">
+                <button class="btn btn-link dropdown-toggle text-decoration-none" type="button" data-bs-toggle="dropdown">
+                  Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="{% url 'account_settings' %}">Settings</a></li>
+                  <li>
+                    <form action="{% url 'logout' %}" method="POST" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="dropdown-item">Log out</button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
             {% else %}
               <a href="{% url 'login' %}" class="btn btn-login px-4">Log in</a>
               <a href="{% url 'register' %}" class="btn btn-signup px-4 rounded-pill">Sign up</a>

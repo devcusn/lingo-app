@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Account Settings - LingoApp{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="mb-4 fw-bold">Account Settings</h2>
+                    
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <!-- Profile Information Form -->
+                    <form method="POST" action="{% url 'update_profile' %}">
+                        {% csrf_token %}
+                        <h4 class="mb-3">Profile Information</h4>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-4">Update Profile</button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <!-- Change Password Form -->
+                    <form method="POST" action="{% url 'change_password' %}">
+                        {% csrf_token %}
+                        <h4 class="mb-3">Change Password</h4>
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password1" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password1" name="new_password1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password2" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="new_password2" name="new_password2" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #4255ff;
+    }
+</style>
+{% endblock %} 

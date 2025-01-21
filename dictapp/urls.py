@@ -13,4 +13,7 @@ urlpatterns = [
     path("remove-word/<int:word_id>/", views.remove_word, name="remove_word"),
     path("ngsl/", views.ngsl, name="ngsl"),
     path("nawl/", views.nawl, name="nawl"),
+    path('account/settings/', views.account_settings, name='account_settings'),
+    path('account/update-profile/', views.update_profile, name='update_profile'),
+    path('account/change-password/', views.change_password, name='change_password'),
 ]

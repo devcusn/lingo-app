@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -9,6 +9,7 @@ import requests
 import csv
 import os
 from .models import Word
+from django.contrib import messages
 
 
 def index(request):
@@ -150,3 +151,60 @@ def nawl(request):
         'words': words_page,
         'search_query': search_query
     })
+
+
+@login_required
+def account_settings(request):
+    return render(request, 'account_settings.html')
+
+
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+
+        # Check if username is already taken
+        if User.objects.exclude(pk=user.pk).filter(username=username).exists():
+            messages.error(request, 'Username is already taken.')
+            return redirect('account_settings')
+
+        # Check if email is already taken
+        if User.objects.exclude(pk=user.pk).filter(email=email).exists():
+            messages.error(request, 'Email is already taken.')
+            return redirect('account_settings')
+
+        user.username = username
+        user.email = email
+        user.save()
+
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('account_settings')
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password1 = request.POST.get('new_password1')
+        new_password2 = request.POST.get('new_password2')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('account_settings')
+
+        if new_password1 != new_password2:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('account_settings')
+
+        if len(new_password1) < 8:
+            messages.error(
+                request, 'Password must be at least 8 characters long.')
+            return redirect('account_settings')
+
+        request.user.set_password(new_password1)
+        request.user.save()
+        update_session_auth_hash(request, request.user)  # Keep user logged in
+        messages.success(request, 'Password changed successfully.')
+        return redirect('account_settings')
