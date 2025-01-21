@@ -1,0 +1,37 @@
+<div class="col-12">
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <h5 class="card-title mb-4">Recent Activity</h5>
+            {% if recent_words %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Word</th>
+                                <th>Added On</th>
+                                <th>Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for word in recent_words %}
+                            <tr>
+                                <td class="fw-bold">{{ word.word }}</td>
+                                <td>{{ word.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if word.meanings.0.definitions.0.definition %}
+                                        {{ word.meanings.0.definitions.0.definition|truncatechars:100 }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No words added yet. Start by adding some words to your collection!</p>
+            {% endif %}
+        </div>
+    </div>
+</div> 

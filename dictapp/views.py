@@ -241,6 +241,59 @@ def dashboard(request):
         created_at__gte=today_start
     ).count()
 
+    # Determine language level based on word count
+    def get_language_level(word_count):
+        if word_count < 1000:
+            return {
+                'level': 'A1',
+                'description': 'Beginner',
+                'progress': (word_count / 1000) * 100,
+                'next_level': 1000 - word_count,
+                'color': 'bg-info'
+            }
+        elif word_count < 2000:
+            return {
+                'level': 'A2',
+                'description': 'Elementary',
+                'progress': ((word_count - 1000) / 1000) * 100,
+                'next_level': 2000 - word_count,
+                'color': 'bg-info'
+            }
+        elif word_count < 3500:
+            return {
+                'level': 'B1',
+                'description': 'Intermediate',
+                'progress': ((word_count - 2000) / 1500) * 100,
+                'next_level': 3500 - word_count,
+                'color': 'bg-success'
+            }
+        elif word_count < 5000:
+            return {
+                'level': 'B2',
+                'description': 'Upper-Intermediate',
+                'progress': ((word_count - 3500) / 1500) * 100,
+                'next_level': 5000 - word_count,
+                'color': 'bg-success'
+            }
+        elif word_count < 8000:
+            return {
+                'level': 'C1',
+                'description': 'Advanced',
+                'progress': ((word_count - 5000) / 3000) * 100,
+                'next_level': 8000 - word_count,
+                'color': 'bg-warning'
+            }
+        else:
+            return {
+                'level': 'C2',
+                'description': 'Proficiency',
+                'progress': 100,
+                'next_level': 0,
+                'color': 'bg-danger'
+            }
+
+    language_level = get_language_level(total_words)
+
     # Get recent words
     recent_words = Word.objects.filter(
         user=request.user
@@ -251,6 +304,7 @@ def dashboard(request):
         'words_this_week': words_this_week,
         'words_today': words_today,
         'recent_words': recent_words,
+        'language_level': language_level,
     }
 
     return render(request, 'dashboard.html', context)

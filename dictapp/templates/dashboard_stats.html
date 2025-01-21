@@ -1,0 +1,41 @@
+<!-- Total Words Card -->
+<div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-book fs-4 text-primary me-2"></i>
+                <h5 class="card-title mb-0">Total Words</h5>
+            </div>
+            <h2 class="display-4 fw-bold mb-0">{{ total_words }}</h2>
+            <p class="text-muted">Words in your collection</p>
+        </div>
+    </div>
+</div>
+
+<!-- Words Added This Week -->
+<div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-graph-up fs-4 text-success me-2"></i>
+                <h5 class="card-title mb-0">This Week</h5>
+            </div>
+            <h2 class="display-4 fw-bold mb-0">{{ words_this_week }}</h2>
+            <p class="text-muted">Words added this week</p>
+        </div>
+    </div>
+</div>
+
+<!-- Words Added Today -->
+<div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-lightning-charge fs-4 text-warning me-2"></i>
+                <h5 class="card-title mb-0">Today</h5>
+            </div>
+            <h2 class="display-4 fw-bold mb-0">{{ words_today }}</h2>
+            <p class="text-muted">Words added today</p>
+        </div>
+    </div>
+</div> 
