@@ -102,13 +102,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for word in recent_words %}
+                                    {% for word_user in recent_words %}
                                     <tr>
-                                        <td class="fw-bold">{{ word.word }}</td>
-                                        <td>{{ word.created_at|date:"M d, Y" }}</td>
+                                        <td class="fw-bold">{{ word_user.word.word }}</td>
+                                        <td>{{ word_user.created_at|date:"M d, Y" }}</td>
                                         <td>
-                                            {% if word.meanings.0.definitions.0.definition %}
-                                                {{ word.meanings.0.definitions.0.definition|truncatechars:100 }}
+                                            {% if word_user.word.meanings.0.definitions.0.definition %}
+                                                {{ word_user.word.meanings.0.definitions.0.definition|truncatechars:100 }}
                                             {% else %}
                                                 -
                                             {% endif %}

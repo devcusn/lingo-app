@@ -8,7 +8,7 @@ from django.db.models import Q
 import requests
 import csv
 import os
-from .models import Word
+from .models import Word, WordUser
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
@@ -93,13 +93,12 @@ def search_word(request):
 @login_required(login_url='login')
 def my_words(request):
     search_query = request.GET.get('q', '').strip()
-    word_list = Word.objects.filter(user=request.user)
+    word_users = WordUser.objects.filter(user=request.user)
 
     if search_query:
-        # Only search in the word field for SQLite compatibility
-        word_list = word_list.filter(word__icontains=search_query)
+        word_users = word_users.filter(word__word__icontains=search_query)
 
-    paginator = Paginator(word_list, 9)
+    paginator = Paginator(word_users, 9)
     page = request.GET.get('page')
     words = paginator.get_page(page)
 
@@ -112,20 +111,26 @@ def my_words(request):
 @login_required(login_url='login')
 def save_word(request):
     if request.method == 'POST':
-        word = request.POST.get('word', '').strip()
-        if word:
+        word_text = request.POST.get('word', '').strip()
+        if word_text:
             try:
                 response = requests.get(
-                    f'https://api.dictionaryapi.dev/api/v2/entries/en/{word}')
+                    f'https://api.dictionaryapi.dev/api/v2/entries/en/{word_text}')
                 if response.status_code == 200:
                     word_data = response.json()[0]
-                    if not Word.objects.filter(word=word_data['word'], user=request.user).exists():
-                        Word.objects.create(
-                            user=request.user,
-                            word=word_data['word'],
-                            phonetic=word_data.get('phonetic', ''),
-                            meanings=word_data.get('meanings', [])
-                        )
+                    # Get or create the word
+                    word, created = Word.objects.get_or_create(
+                        word=word_data['word'],
+                        defaults={
+                            'phonetic': word_data.get('phonetic', ''),
+                            'meanings': word_data.get('meanings', [])
+                        }
+                    )
+                    # Create the word-user relationship if it doesn't exist
+                    WordUser.objects.get_or_create(
+                        word=word,
+                        user=request.user
+                    )
                     return redirect('my_words')
             except Exception as e:
                 pass
@@ -135,8 +140,7 @@ def save_word(request):
 @login_required(login_url='login')
 def remove_word(request, word_id):
     if request.method == 'POST':
-        word = get_object_or_404(Word, id=word_id, user=request.user)
-        word.delete()
+        WordUser.objects.filter(word_id=word_id, user=request.user).delete()
     return redirect('my_words')
 
 
@@ -225,18 +229,17 @@ def change_password(request):
 
 @login_required
 def dashboard(request):
-    # Get current date and time
     now = timezone.now()
     week_ago = now - timedelta(days=7)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    # Get word counts
-    total_words = Word.objects.filter(user=request.user).count()
-    words_this_week = Word.objects.filter(
+    # Get word counts using WordUser model
+    total_words = WordUser.objects.filter(user=request.user).count()
+    words_this_week = WordUser.objects.filter(
         user=request.user,
         created_at__gte=week_ago
     ).count()
-    words_today = Word.objects.filter(
+    words_today = WordUser.objects.filter(
         user=request.user,
         created_at__gte=today_start
     ).count()
@@ -294,10 +297,10 @@ def dashboard(request):
 
     language_level = get_language_level(total_words)
 
-    # Get recent words
-    recent_words = Word.objects.filter(
+    # Get recent words using WordUser model
+    recent_words = WordUser.objects.filter(
         user=request.user
-    ).order_by('-created_at')[:5]
+    ).select_related('word').order_by('-created_at')[:5]
 
     context = {
         'total_words': total_words,
