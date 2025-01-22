@@ -16,5 +16,6 @@ urlpatterns = [
     path('account/settings/', views.account_settings, name='account_settings'),
     path('account/update-profile/', views.update_profile, name='update_profile'),
     path('account/change-password/', views.change_password, name='change_password'),
+    path('account/delete/', views.delete_account, name='delete_account'),
     path('dashboard/', views.dashboard, name='dashboard'),
 ]

@@ -228,6 +228,33 @@ def change_password(request):
 
 
 @login_required
+def delete_account(request):
+    if request.method == 'POST':
+        password = request.POST.get('password_confirm')
+        user = request.user
+
+        # Verify password
+        if not user.check_password(password):
+            messages.error(request, 'Incorrect password.')
+            return redirect('account_settings')
+
+        try:
+            # Delete all user's words
+            WordUser.objects.filter(user=user).delete()
+            # Delete the user
+            user.delete()
+            messages.success(
+                request, 'Your account has been successfully deleted.')
+            return redirect('index')
+        except Exception as e:
+            messages.error(
+                request, 'An error occurred while deleting your account.')
+            return redirect('account_settings')
+
+    return redirect('account_settings')
+
+
+@login_required
 def dashboard(request):
     now = timezone.now()
     week_ago = now - timedelta(days=7)
