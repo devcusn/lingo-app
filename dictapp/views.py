@@ -75,18 +75,44 @@ def logout_view(request):
 
 def search_word(request):
     if request.method == 'POST':
-        word = request.POST.get('word', '').strip()
+        # Convert to lowercase for consistency
+        word = request.POST.get('word', '').strip().lower()
         if word:
             try:
+                # First, try to find the word in our database
+                existing_word = Word.objects.filter(word__iexact=word).first()
+
+                if existing_word:
+                    # Word found in database, return it directly
+                    return render(request, 'search_word.html', {
+                        'word_data': {
+                            'word': existing_word.word,
+                            'phonetic': existing_word.phonetic,
+                            'meanings': existing_word.meanings
+                        }
+                    })
+
+                # If word not found in database, fetch from API
                 response = requests.get(
                     f'https://api.dictionaryapi.dev/api/v2/entries/en/{word}')
+
                 if response.status_code == 200:
                     word_data = response.json()[0]
+
+                    # Save the word to our database
+                    Word.objects.create(
+                        word=word_data['word'],
+                        phonetic=word_data.get('phonetic', ''),
+                        meanings=word_data.get('meanings', [])
+                    )
+
                     return render(request, 'search_word.html', {'word_data': word_data})
                 else:
                     return render(request, 'search_word.html', {'error': 'Word not found'})
+
             except Exception as e:
                 return render(request, 'search_word.html', {'error': 'An error occurred while fetching the word'})
+
     return render(request, 'search_word.html')
 
 
