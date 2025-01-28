@@ -18,4 +18,5 @@ urlpatterns = [
     path('account/change-password/', views.change_password, name='change_password'),
     path('account/delete/', views.delete_account, name='delete_account'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('phrasal-verbs', views.phrasal_verb, name='phrasal_verb')
 ]

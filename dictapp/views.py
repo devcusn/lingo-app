@@ -364,3 +364,8 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
+
+
+@login_required
+def phrasal_verb(request):
+    return render(request, 'phrasal-verb.html')
